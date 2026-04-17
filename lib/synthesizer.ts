@@ -1,15 +1,8 @@
 // Síntesis LLM — combina señales de Truora + Tavily en perfil 360°
 
-import { generateObject } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import type { TruoraProfile } from "./truora";
 import type { TavilySignal } from "./tavily";
-
-const openrouter = createOpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY ?? "",
-});
 
 export interface Profile360 {
   risk_score: number; // 0-100
@@ -28,6 +21,50 @@ const schema = z.object({
   positive_signals: z.array(z.string()),
 });
 
+const MODELS = [
+  "google/gemma-3-12b-it:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "mistralai/mistral-7b-instruct:free",
+  "qwen/qwen3-8b:free",
+  "google/gemma-3-4b-it:free",
+];
+
+async function callOpenRouter(prompt: string): Promise<string> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error("OPENROUTER_API_KEY no configurada");
+
+  let lastError: string = "Sin modelos disponibles";
+
+  for (const model of MODELS) {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (res.status === 429) {
+      lastError = `${model} — rate limited`;
+      continue;
+    }
+    if (!res.ok) {
+      const body = await res.text();
+      lastError = `${model} — ${res.status}: ${body}`;
+      continue;
+    }
+
+    const data = await res.json() as { choices: { message: { content: string } }[] };
+    return data.choices[0].message.content;
+  }
+
+  throw new Error(`Todos los modelos fallaron. Último error: ${lastError}`);
+}
+
 export async function buildProfile360(params: {
   name: string;
   truora: TruoraProfile;
@@ -37,7 +74,16 @@ export async function buildProfile360(params: {
     .map((s) => `[${s.title}] ${s.content}`)
     .join("\n\n");
 
-  const prompt = `Eres un analista experto en riesgo crediticio. Tu tarea es construir un perfil 360° de la persona "${params.name}" para apoyar una decisión de crédito.
+  const prompt = `Eres un analista experto en riesgo crediticio. Responde ÚNICAMENTE con un objeto JSON válido, sin markdown, sin explicaciones, sin texto adicional.
+
+El JSON debe tener exactamente estas claves:
+- risk_score: número entre 0 (sin riesgo) y 100 (riesgo máximo)
+- risk_level: exactamente "bajo" (0-33), "medio" (34-66) o "alto" (67-100)
+- summary: párrafo ejecutivo de 2-3 oraciones
+- red_flags: array de strings con alertas concretas (vacío si no hay)
+- positive_signals: array de strings con indicadores favorables
+
+Datos de entrada para "${params.name}":
 
 VALIDACIÓN DE IDENTIDAD (Truora):
 - Identidad confirmada: ${params.truora.identity_confirmed ? "SÍ" : "NO"}
@@ -46,20 +92,18 @@ VALIDACIÓN DE IDENTIDAD (Truora):
 - Registros judiciales: ${params.truora.judicial_records ? "SÍ — revisar detalle" : "Sin registros"}
 
 SEÑALES WEB (búsqueda pública):
-${webEvidence || "Sin resultados de búsqueda web disponibles."}
+${webEvidence || "Sin resultados de búsqueda web disponibles."}`;
 
-Con base en la evidencia anterior, genera un perfil de riesgo crediticio. El risk_score debe ser un número entre 0 (sin riesgo) y 100 (riesgo máximo). El risk_level debe ser "bajo" (0-33), "medio" (34-66) o "alto" (67-100). El summary debe ser un párrafo ejecutivo de 2-3 oraciones. red_flags son alertas concretas encontradas (puede ser vacío si no hay). positive_signals son indicadores favorables encontrados.`;
+  const text = await callOpenRouter(prompt);
 
-  const { object } = await generateObject({
-    model: openrouter("meta-llama/llama-3.1-8b-instruct:free"),
-    schema,
-    prompt,
-  });
+  // Extraer el bloque JSON (el modelo puede añadir texto extra o markdown)
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("El modelo no devolvió JSON válido");
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  const object = schema.parse(parsed);
 
   const sources = params.tavily.map((s) => ({ title: s.title, url: s.url }));
 
-  return {
-    ...object,
-    sources,
-  };
+  return { ...object, sources };
 }

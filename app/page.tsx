@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RiskBadge } from "@/components/RiskBadge";
 import { SourceList } from "@/components/SourceList";
+import { Chip } from "@/components/Chip";
 
 interface TruoraCheck {
   identity_confirmed: boolean;
@@ -267,24 +268,4 @@ export default function Home() {
   );
 }
 
-function Chip({
-  ok,
-  labelOk,
-  labelFail,
-}: {
-  ok: boolean;
-  labelOk: string;
-  labelFail: string;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium ${
-        ok
-          ? "border-green-200 bg-green-50 text-green-700"
-          : "border-red-200 bg-red-50 text-red-700"
-      }`}
-    >
-      {ok ? "✓" : "✗"} {ok ? labelOk : labelFail}
-    </span>
-  );
-}
+
