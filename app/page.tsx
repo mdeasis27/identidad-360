@@ -69,14 +69,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-6 py-12">
         {/* Header */}
         <header className="mb-10">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Perfiles de Identidad 360°
           </h1>
-          <p className="mt-2 text-base text-zinc-500">
+          <p className="mt-2 text-base text-muted-foreground">
             Inteligencia de identidad para equipos de riesgo crediticio. Combina
             validación documental (Truora) con señales públicas web (Tavily) para
             un perfil sintetizado por IA.
@@ -86,13 +86,13 @@ export default function Home() {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm"
+          className="rounded-[var(--radius-md)] bg-card p-6 shadow-[var(--shadow-card)]"
         >
           <div className="space-y-4">
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-zinc-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Nombre completo <span className="text-red-500">*</span>
               </label>
@@ -103,14 +103,14 @@ export default function Home() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Juan García López"
-                className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                className="mt-1 block w-full rounded-[var(--radius-md)] shadow-[var(--shadow-border-light)] bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
 
             <div>
               <label
                 htmlFor="country"
-                className="block text-sm font-medium text-zinc-700"
+                className="block text-sm font-medium text-foreground"
               >
                 País <span className="text-red-500">*</span>
               </label>
@@ -121,17 +121,17 @@ export default function Home() {
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 placeholder="Ej. Colombia"
-                className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                className="mt-1 block w-full rounded-[var(--radius-md)] shadow-[var(--shadow-border-light)] bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
 
             <div>
               <label
                 htmlFor="document"
-                className="block text-sm font-medium text-zinc-700"
+                className="block text-sm font-medium text-foreground"
               >
                 Documento{" "}
-                <span className="text-zinc-400 font-normal">(opcional)</span>
+                <span className="text-muted-foreground font-normal">(opcional)</span>
               </label>
               <input
                 id="document"
@@ -139,7 +139,7 @@ export default function Home() {
                 value={documentId}
                 onChange={(e) => setDocumentId(e.target.value)}
                 placeholder="Cédula, NIT, pasaporte..."
-                className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                className="mt-1 block w-full rounded-[var(--radius-md)] shadow-[var(--shadow-border-light)] bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-5 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-5 w-full rounded-[var(--radius-md)] bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Construyendo perfil..." : "Construir perfil"}
           </button>
@@ -156,16 +156,16 @@ export default function Home() {
         {/* Loading skeleton */}
         {loading && (
           <div className="mt-8 space-y-4 animate-pulse">
-            <div className="h-8 w-40 rounded-full bg-zinc-200" />
-            <div className="h-4 w-full rounded bg-zinc-200" />
-            <div className="h-4 w-5/6 rounded bg-zinc-200" />
-            <div className="h-4 w-4/6 rounded bg-zinc-200" />
+            <div className="h-8 w-40 rounded-full bg-muted" />
+            <div className="h-4 w-full rounded bg-muted" />
+            <div className="h-4 w-5/6 rounded bg-muted" />
+            <div className="h-4 w-4/6 rounded bg-muted" />
           </div>
         )}
 
         {/* Error banner */}
         {error && !loading && (
-          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mt-6 rounded-[var(--radius-md)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <strong>Error:</strong> {error}
           </div>
         )}
@@ -179,24 +179,24 @@ export default function Home() {
                 level={result.profile.risk_level}
                 score={result.profile.risk_score}
               />
-              <span className="text-sm text-zinc-500">
+              <span className="text-sm text-muted-foreground">
                 {result.name} · {result.country}
               </span>
             </div>
 
             {/* Summary */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-400">
+            <div className="rounded-[var(--radius-md)] bg-card p-5 shadow-[var(--shadow-card)]">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Resumen ejecutivo
               </h2>
-              <p className="text-sm leading-relaxed text-zinc-700">
+              <p className="text-sm leading-relaxed text-foreground">
                 {result.profile.summary}
               </p>
             </div>
 
             {/* Red flags */}
             {result.profile.red_flags.length > 0 && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+              <div className="rounded-[var(--radius-md)] border border-red-200 bg-red-50 p-5">
                 <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-red-600">
                   Señales de alerta
                 </h2>
@@ -213,7 +213,7 @@ export default function Home() {
 
             {/* Positive signals */}
             {result.profile.positive_signals.length > 0 && (
-              <div className="rounded-xl border border-green-200 bg-green-50 p-5">
+              <div className="rounded-[var(--radius-md)] border border-green-200 bg-green-50 p-5">
                 <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-green-700">
                   Señales positivas
                 </h2>
@@ -229,8 +229,8 @@ export default function Home() {
             )}
 
             {/* Truora verification chips */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-400">
+            <div className="rounded-[var(--radius-md)] bg-card p-5 shadow-[var(--shadow-card)]">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Verificación de identidad (Truora)
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -258,7 +258,7 @@ export default function Home() {
             </div>
 
             {/* Sources */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div className="rounded-[var(--radius-md)] bg-card p-5 shadow-[var(--shadow-card)]">
               <SourceList sources={result.profile.sources} />
             </div>
           </section>
@@ -267,5 +267,3 @@ export default function Home() {
     </div>
   );
 }
-
-
