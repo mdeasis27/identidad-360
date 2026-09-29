@@ -4,6 +4,7 @@ import { useState } from "react";
 import { RiskBadge } from "@/components/RiskBadge";
 import { SourceList } from "@/components/SourceList";
 import { Chip } from "@/components/Chip";
+import { Alert } from "@/design-system/components/alert";
 
 interface TruoraCheck {
   identity_confirmed: boolean;
@@ -73,7 +74,7 @@ export default function Home() {
       <div className="mx-auto max-w-2xl px-6 py-12">
         {/* Header */}
         <header className="mb-10">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             Perfiles de Identidad 360°
           </h1>
           <p className="mt-2 text-base text-muted-foreground">
@@ -94,7 +95,7 @@ export default function Home() {
                 htmlFor="name"
                 className="block text-sm font-medium text-foreground"
               >
-                Nombre completo <span className="text-red-500">*</span>
+                Nombre completo <span className="text-danger">*</span>
               </label>
               <input
                 id="name"
@@ -112,7 +113,7 @@ export default function Home() {
                 htmlFor="country"
                 className="block text-sm font-medium text-foreground"
               >
-                País <span className="text-red-500">*</span>
+                País <span className="text-danger">*</span>
               </label>
               <input
                 id="country"
@@ -165,9 +166,9 @@ export default function Home() {
 
         {/* Error banner */}
         {error && !loading && (
-          <div className="mt-6 rounded-[var(--radius-md)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <Alert tone="danger" className="mt-6">
             <strong>Error:</strong> {error}
-          </div>
+          </Alert>
         )}
 
         {/* Results */}
@@ -196,36 +197,12 @@ export default function Home() {
 
             {/* Red flags */}
             {result.profile.red_flags.length > 0 && (
-              <div className="rounded-[var(--radius-md)] border border-red-200 bg-red-50 p-5">
-                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-red-600">
-                  Señales de alerta
-                </h2>
-                <ul className="space-y-1">
-                  {result.profile.red_flags.map((flag, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-red-700">
-                      <span className="mt-0.5 shrink-0">&#x26A0;</span>
-                      {flag}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Alert tone="danger" title="Señales de alerta" items={result.profile.red_flags} />
             )}
 
             {/* Positive signals */}
             {result.profile.positive_signals.length > 0 && (
-              <div className="rounded-[var(--radius-md)] border border-green-200 bg-green-50 p-5">
-                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-green-700">
-                  Señales positivas
-                </h2>
-                <ul className="space-y-1">
-                  {result.profile.positive_signals.map((signal, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-green-700">
-                      <span className="mt-0.5 shrink-0">&#x2713;</span>
-                      {signal}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Alert tone="success" title="Señales positivas" items={result.profile.positive_signals} />
             )}
 
             {/* Truora verification chips */}
