@@ -45,3 +45,6 @@ next-env.d.ts
 # AI agent state
 .claude/
 .kilo/
+
+# infisical local config (never committed)
+.infisical.json

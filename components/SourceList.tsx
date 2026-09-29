@@ -8,7 +8,7 @@ export function SourceList({ sources }: { sources: Source[] }) {
 
   return (
     <div className="mt-4">
-      <h3 className="mb-2 text-sm font-semibold text-gray-700">Fuentes</h3>
+      <h3 className="mb-2 text-sm font-semibold text-foreground">Fuentes</h3>
       <ul className="space-y-1">
         {sources.map((s, i) => (
           <li key={i}>
@@ -16,7 +16,7 @@ export function SourceList({ sources }: { sources: Source[] }) {
               href={s.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-600 underline-offset-2 hover:underline"
+              className="text-sm text-accent underline-offset-2 hover:underline"
             >
               {s.title}
             </a>
