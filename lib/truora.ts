@@ -1,4 +1,4 @@
-// Cliente Truora — background check para perfiles de crédito
+// Identity-verification client for credit profiles.
 
 const TRUORA_BASE = "https://api.truora.com";
 
@@ -21,11 +21,11 @@ async function request<T>(path: string, body: Record<string, unknown>): Promise<
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) throw new Error(`Truora ${path} → ${res.status}`);
+  if (!res.ok) throw new Error(`Identity verification ${path} → ${res.status}`);
   return res.json() as Promise<T>;
 }
 
-// Mock realista para demo sin Truora
+// Deterministic mock for a credential-free demo.
 // Esta función simula diferentes escenarios para demostrar cómo respondería la API real
 function getMockIdentityProfile(params: { name: string; country: string; document_id?: string }): TruoraProfile {
   // Simulación determinista basada en el hash del nombre y documento
@@ -88,7 +88,7 @@ export async function getIdentityProfile(params: {
     return getMockIdentityProfile(params);
   }
 
-  // Llamada real a Truora
+  // Optional live provider call.
   const data = await request<Record<string, unknown>>("/v1/checks", {
     ...params,
     type: "background_check",

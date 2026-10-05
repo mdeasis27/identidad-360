@@ -1,4 +1,4 @@
-// Síntesis LLM — combina señales de Truora + Tavily en perfil 360°
+// LLM synthesis combines identity and web signals into a profile.
 
 import { z } from "zod";
 import { chat } from "@/ai-kit/router";
@@ -54,7 +54,7 @@ export async function buildProfile360(params: {
 
 Datos de entrada para "${params.name}":
 
-VALIDACIÓN DE IDENTIDAD (Truora):
+VALIDACIÓN DE IDENTIDAD (proveedor configurado):
 - Identidad confirmada: ${params.truora.identity_confirmed ? "SÍ" : "NO"}
 - Listas de sanciones: ${params.truora.sanctions_hit ? "POSITIVO — alerta mayor" : "Limpio"}
 - PEP: ${params.truora.pep_hit ? "SÍ — requiere debida diligencia" : "NO"}

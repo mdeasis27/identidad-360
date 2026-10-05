@@ -1,0 +1,2 @@
+export type TraceEvent={id:string;step:number;kind:"evidence"|"decision";messageKey:string;timestampMs:number;evidenceIds?:string[]}; export type DemoRun<I,R>={input:I;result:R;trace:TraceEvent[];executionMs:number;mode:"local"}; export type DemoAdapter<I,R>=(input:I,signal:AbortSignal,onEvent:(e:TraceEvent)=>void)=>Promise<DemoRun<I,R>>;
+export type ExperienceInput={registry:boolean;document:boolean;conflict:boolean}; export type ExperienceResult={decision:"assembled"|"review";coverage:number;signals:{id:string;state:"confirmed"|"missing"|"conflict"}[];explanation:string};

@@ -79,7 +79,7 @@ export default function Home() {
           </h1>
           <p className="mt-2 text-base text-muted-foreground">
             Inteligencia de identidad para equipos de riesgo crediticio. Combina
-            validación documental (Truora) con señales públicas web (Tavily) para
+            validación documental con señales públicas web para
             un perfil sintetizado por IA.
           </p>
         </header>
@@ -205,10 +205,10 @@ export default function Home() {
               <Alert tone="success" title="Señales positivas" items={result.profile.positive_signals} />
             )}
 
-            {/* Truora verification chips */}
+            {/* API de verificación de identidad verification chips */}
             <div className="rounded-[var(--radius-md)] bg-card p-5 shadow-[var(--shadow-card)]">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Verificación de identidad (Truora)
+                Verificación de identidad (API de verificación de identidad)
               </h2>
               <div className="flex flex-wrap gap-2">
                 <Chip
