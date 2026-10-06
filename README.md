@@ -1,158 +1,79 @@
-# Perfiles de Identidad 360°
+# Identity evidence
 
-Una aplicación Next.js que crea perfiles comprehensivos de identidad combinando múltiples fuentes de datos para evaluación de riesgo crediticio.
+[Español](README.es.md) · [Try the demo](https://identidad-360-manueldeasis27-2515s-projects.vercel.app/en/app) · [Case study](https://manueldeasis.com/en/projects/identidad-360) · [Source](https://github.com/mdeasis27/identidad-360)
 
-## 🚀 Características
+![Actual interactive local interface](docs/images/cover.png)
 
-- **Integración de APIs externas**: Combina datos de Truora (verificación de identidad), Tavily (búsqueda web) y OpenRouter (síntesis por IA)
-- **Análisis de riesgo en tiempo real**: Genera scores y niveles de riesgo basados en múltiples fuentes
-- **Interfaz responsive y accesible**: Diseño limpio con Tailwind CSS
-- **Manejo robusto de errores**: Feedback claro para diferentes tipos de fallos
-- **Mock realista**: Simulación detallada para desarrollo y demostración sin consumir créditos de API
+Enable fictional sources and introduce conflicts to assemble a local profile.
 
-## 🛠️ Tecnologías Utilizadas
+## Two situations to compare
 
-- **Frontend**: Next.js 16.2.3, React 19.2.4, TypeScript, Tailwind CSS 4
-- **APIs Integradas**: Truora, Tavily, OpenRouter
-- **Estado**: React hooks (useState)
-- **Despliegue**: Optimizado para Vercel
+**Consistent profile:** registry=true, document=true, conflict=false The profile is assembled at 100% coverage.
 
-## 🔧 Configuración Local
+![Consistent profile](docs/images/scenario-a.png)
 
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/tu-usuario/identidad-360.git
-   cd identidad-360
-   ```
+**Contradiction:** registry=true, document=true, conflict=true The profile is routed to review.
 
-2. Instala dependencias:
-   ```bash
-   npm install
-   ```
+![Contradiction](docs/images/scenario-b.png)
 
-3. Crea un archivo `.env.local` basado en `.env.example`:
-   ```bash
-   cp .env.example .env.local
-   ```
+## Business use case
 
-4. Obtén las API keys necesarias:
-   - **Truora**: Regístrate en [truora.com](https://www.truora.com) para obtener tu API key
-   - **Tavily**: Regístrate en [tavily.com](https://tavily.com) para obtener tu API key
-   - **OpenRouter**: Regístrate en [openrouter.ai](https://openrouter.ai) para obtener tu API key
+Sources can agree or conflict.
 
-5. Configura tus claves en `.env.local`:
-   ```env
-   TRUORA_API_KEY=tu_clave_real_aqui
-   TAVILY_API_KEY=tu_clave_real_aqui
-   OPENROUTER_API_KEY=tu_clave_real_aqui
-   TRUORA_MOCK=false  # Cambia a true si quieres usar mock
-   ```
+**Who uses it:** Identity analyst.
 
-6. Inicia el servidor de desarrollo:
-   ```bash
-   npm run dev
-   ```
+**The decision:** Assemble or review.
 
-7. Abre [http://localhost:3000](http://localhost:3000) en tu navegador
+Gather registry and document evidence, then assemble a profile.
 
-## 📚 ¿Cómo Funciona?
+### Try the decision
 
-### Arquitectura de Integración de APIs
+**Consistent profile:** registry=true, document=true, conflict=false The profile is assembled at 100% coverage.
 
-```mermaid
-graph TD
-    A[Usuario ingresa datos] --> B[API Endpoint /api/profile]
-    B --> C[Llamada Paralela a APIs]
-    C --> D[Truora: Verificación de identidad]
-    C --> E[Tavily: Búsqueda de señales web]
-    C --> F[OpenRouter: Síntesis por IA]
-    D & E & F --> G[Construcción de Perfil 360°]
-    G --> H[Respuesta al Frontend]
-    H --> I[Visualización de Resultados]
+**Contradiction:** registry=true, document=true, conflict=true The profile is routed to review.
+
+Choose a scenario, edit its controls and run the local computation. Step through the visual process or reveal all steps. Reset before comparing the second scenario.
+
+## How to try it
+
+Open `/en/app` (English, default) or `/es/app` (Spanish). Change the scenario inputs and run the computation. Inspect the resulting decision, evidence and computed trace. Playback reveals completed local steps; it does not measure a live model. Reset starts a new local scenario. Changing language resets the scenario; the interface displays a reset notice.
+
+The primary demo needs no account, API key or database. Public links refer to the existing deployment; local redesign changes are pending publication.
+
+## Local setup and verification
+
+Requires Node.js 22 and pnpm 10.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+pnpm test
+node node_modules/typescript/bin/tsc --noEmit --incremental false
+pnpm lint
+pnpm build
 ```
 
-### Flujo de Datos
+Open `http://localhost:3000/en/app`. Recorded validation covers tests, lint, TypeScript and production builds. See [command results](docs/quality/decision-lab-verification.json) and [browser component checks](docs/quality/decision-lab-browser.json). The new browser checks exercise real React components and production CSS with controlled locale navigation; they do not certify Next routes or public deployment.
 
-1. **Frontend**: El usuario ingresa nombre, país y documento de identidad
-2. **API Route** (`/app/api/profile/route.ts`):
-   - Valida los datos de entrada
-   - Llama en paralelo a las tres APIs externas
-   - Combina los resultados en un perfil coherente
-   - Devuelve la respuesta estructurada
-3. **Frontend**: Muestra los resultados con visualizaciones claras por fuente de datos
+## Architecture
 
-## 🎯 Lo Que Aprendí
+- `app/[lang]/`: localized browser experience.
+- `lib/experience/`: typed local adapter, validation and run traces.
+- `design-system/`: shared visual tokens, locale controls and execution/replay presentation.
+- `app/api/`: optional server integrations; the primary demo does not require them.
 
-Durante el desarrollo de este proyecto, profundicé en:
+Technology: Next.js 16, TypeScript, AI SDK, REST APIs, LLM API, Zod, Tailwind CSS v4.
 
-### Integración de APIs Externas
-- Manejo de autenticación con headers personalizados (Truora-API-Key)
-- Manejo de límites de tasa y errores de red
-- Combinación de respuestas de múltiples fuentes con diferentes formatos
-- Implementación de timeouts y reintentos básicos
+## Evidence and limitations
 
-### Arquitectura de Next.js
-- Uso de API Routes para mantener las claves de API seguras en el backend
-- Separación de preocupaciones entre frontend y backend
-- Tipado sólido con TypeScript para interfaces de API
-- Optimización de carga con `useState` y manejo de loading states
+Two evidence blocks converge into a profile.
 
-### Diseño de Experiencia de Usuario
-- Feedback visual claro durante las llamadas a API
-- Manejo graceful de errores parciales (cuando una API falla pero otras funcionan)
-- Visualización diferenciada por fuente de datos (Truora, Tavily, IA)
-- Diseño responsive accesible
+Source provenance, coverage and contradictions; no real identity verification.
 
-## 📁 Estructura del Proyecto
+Shows coverage and contradictions before a handoff.
 
-```
-identidad-360/
-├── app/                     # Directorio de Next.js App Router
-│   ├── api/                 # Endpoints de API
-│   │   └── profile/         # Ruta para construcción de perfiles
-│   ├── page.tsx             # Página principal
-│   └── layout.tsx           # Layout raíz
-├── components/              # Componentes reutilizables
-│   ├── Chip.tsx             # Chip de estado (éxito/error)
-│   ├── RiskBadge.tsx        # Indicador de nivel de riesgo
-│   └── SourceList.tsx       # Lista de fuentes consultadas
-├── lib/                     # Lógica de negocio y servicios
-│   ├── truora.ts            # Cliente para API de Truora
-│   ├── tavily.ts            # Cliente para API de Tavily
-│   ├── openrouter.ts        # Cliente para API de OpenRouter
-│   └── synthesizer.ts       # Lógica para combinar resultados
-├── public/                  # Assets estáticos
-├── styles/                  # Estilos globales
-└── .env.local               # Variables de entorno (no versionado)
-```
+**Limits:** Uses local fictional sources only. These portfolio prototypes do not claim measured production impact.
 
-## 🚀 Despliegue en Vercel
+Inputs use fictional or anonymized examples. Optional live integrations require their own credentials and operational setup. Secrets belong in the configured secret manager, never in local secret files or Git. Use the existing `infisical run -- <command>` workflow when live integration is needed. This repository does not publish or deploy automatically as part of the local demo.
 
-1. Haz push de tu repositorio a GitHub
-2. Importa el proyecto en [Vercel](https://vercel.com)
-3. Configura las variables de entorno en el panel de Vercel:
-   - `TRUORA_API_KEY`
-   - `TAVILY_API_KEY`
-   - `OPENROUTER_API_KEY`
-   - `TRUORA_MOCK` (opcional, default: false)
-4. Vercel detectará automáticamente que es un proyecto Next.js y lo desplegará
-
-## 🧪 Pruebas y Demostración
-
-Para probar sin consumir créditos de API:
-1. Mantén `TRUORA_MOCK=true` en tu `.env.local`
-2. El proyecto usará simulaciones realistas que varían según la entrada
-3. Prueba con diferentes nombres y documentos para ver diferentes perfiles de riesgo
-
-## 📝 Licencia
-
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
-
-## 💡 Mejoras Futuras
-
-- [ ] Añadir tests unitarios y de integración
-- [ ] Implementar caching de respuestas para mejorar performance
-- [ ] Añadir historial de búsquedas
-- [ ] Exportar perfiles a PDF
-- [ ] Implementar autenticación de usuarios
-- [ ] Añadir visualizaciones avanzadas de datos
+![Actual English demo capture](docs/images/demo.png)

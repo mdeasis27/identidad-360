@@ -1,0 +1,51 @@
+{
+  "repository": "identidad-360",
+  "scope": "Real React component with controlled locale; Next routes not tested.",
+  "checks": [
+    {
+      "locale": "en",
+      "scenarios": [
+        {
+          "preset": "Consistent profile\nRegistry and document agree.",
+          "outcome": "Profile assembled\n\nRegistry and document were assembled into the local profile at the shown coverage."
+        },
+        {
+          "preset": "Contradiction\nA signal separates the case for review.",
+          "outcome": "Analyst review\n\nThe source conflict separates the profile and sends it to an analyst."
+        }
+      ],
+      "mobileNoOverflow": true,
+      "reducedMotion": true,
+      "keyboard": true,
+      "noRequests": true,
+      "sceneChangesWithScenario": true,
+      "editingClearsPresetAndTrace": true,
+      "resetRestoresFirstPreset": true,
+      "cancelControlPresent": true,
+      "presetRestoresAllInputs": true
+    },
+    {
+      "locale": "es",
+      "scenarios": [
+        {
+          "preset": "Perfil consistente\nRegistro y documento coinciden.",
+          "outcome": "Perfil ensamblado\n\nRegistro y documento se integraron en el perfil local con la cobertura mostrada."
+        },
+        {
+          "preset": "Contradicción\nUna señal separa el caso para revisión.",
+          "outcome": "Revisión analítica\n\nLa contradicción entre fuentes separa el perfil y lo envía a una persona analista."
+        }
+      ],
+      "mobileNoOverflow": true,
+      "reducedMotion": true,
+      "keyboard": true,
+      "noRequests": true,
+      "sceneChangesWithScenario": true,
+      "editingClearsPresetAndTrace": true,
+      "resetRestoresFirstPreset": true,
+      "cancelControlPresent": true,
+      "presetRestoresAllInputs": true
+    }
+  ],
+  "errors": []
+}

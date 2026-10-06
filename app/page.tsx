@@ -5,8 +5,8 @@ import { cn } from "@/design-system/utils";
 
 const STACK = [
   "Next.js 16",
-  "Truora",
-  "Tavily",
+  "Identity verification API",
+  "Web search API",
   "TypeScript",
   "Tailwind v4",
 ];
