@@ -26,7 +26,7 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
       heading: { before: "The", accent: "analogy" },
       paragraphs: [
         "Picture a puzzle made from pieces of several boxes. Most pieces fit. When two of them clearly don't, you don't force them together: you set them aside for someone to look at.",
-        "Identity 360 assembles a customer profile from a public registry and an ID document, and cross-checks them. A profile whose sources contradict each other goes to an analyst. If no analyst is free today, it waits until tomorrow.",
+        "Identity evidence assembles a customer profile from a public registry and an ID document, and cross-checks them. A profile whose sources contradict each other goes to an analyst. If no analyst is free today, it waits until tomorrow.",
       ],
       dictionaryLabel: "In the diagram below",
       dictionary: [
@@ -109,7 +109,7 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
       heading: { before: "La", accent: "analogía" },
       paragraphs: [
         "Imagina un rompecabezas con piezas de varias cajas. Casi todas encajan. Cuando dos claramente no, no las fuerzas: las apartas para que alguien las mire.",
-        "Identidad 360 arma el perfil de un cliente con un registro público y una identificación, y los cruza. Un perfil cuyas fuentes se contradicen va con un analista. Si hoy no hay analista libre, espera a mañana.",
+        "Identidad 360° arma el perfil de un cliente con un registro público y una identificación, y los cruza. Un perfil cuyas fuentes se contradicen va con un analista. Si hoy no hay analista libre, espera a mañana.",
       ],
       dictionaryLabel: "En el diagrama de abajo",
       dictionary: [
