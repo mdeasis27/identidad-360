@@ -26,7 +26,7 @@ export function Experience({ lang: locale }: { lang: "en" | "es" }) {
   const played = demo.trace.length === 0 || playedTrace === demo.trace;
   const clear = () => { setPrediction(null); demo.reset(); };
   const reset = () => { setSeats(DEFAULT_SEATS); clear(); };
-  const scene = (frame: typeof COMPLETE_FRAME) => result ? <IdentidadStoryScene frame={frame} result={result} locale={locale} /> : null;
+  const scene = (frame: typeof COMPLETE_FRAME) => run && result ? <IdentidadStoryScene frame={frame} result={result} seats={run.input.seats} locale={locale} /> : null;
 
   return <main className="mx-auto max-w-5xl px-5 py-8 text-foreground sm:py-12">
     <div className="mb-6 flex items-center justify-between gap-4">

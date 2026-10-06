@@ -1,6 +1,5 @@
 import type { Heading } from "@/design-system/demo/project-story";
 
-type NodeCopy = { name: string; sub: string; analogy: string };
 type Tally = { mismatched: number; waiting: number };
 
 export interface IdentidadStory {
@@ -14,7 +13,7 @@ export interface IdentidadStory {
   fit: { heading: Heading; worthLabel: string; worth: string; notLabel: string; not: string };
   proves: { heading: Heading; text: string };
   engineers: { summary: string; points: string[]; repoLabel: string };
-  scene: { title: string; caption: string; statusLabels: { active: string; success: string; danger: string }; tapeLabel: string; nodes: { sources: NodeCopy; check: NodeCopy; analysts: NodeCopy; profile: NodeCopy }; tape: { served: string; rerouted: string; lost: string }; resolvedOf: (n: number) => string };
+  scene: { title: string; caption: string; tapeLabel: string; tape: { served: string; rerouted: string; lost: string }; resolvedOf: (n: number) => string; puzzle: { registry: string; document: string; fits: string; board: string; analysts: (n: number) => string; tomorrow: string; halfPiece: string; batch: (from: number, to: number) => string; summary: (assembled: number, reviewed: number, waiting: number) => string } };
 }
 
 export const STORY: Record<"en" | "es", IdentidadStory> = {
@@ -88,17 +87,21 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
     },
     scene: {
       title: "Which profiles got resolved today",
-      caption: "Watch the profiles arrive five at a time.",
-      statusLabels: { active: "tuned by you", success: "conflicts caught", danger: "profiles waiting" },
+      caption: "Each profile joins a registry piece and an ID piece. If they fit, it goes green into the puzzle. If they clash, an analyst looks at it today or it waits until tomorrow.",
       tapeLabel: "Twenty applicants, in the order they applied",
-      nodes: {
-        sources: { name: "Sources", sub: "registry and document", analogy: "the boxes of pieces" },
-        check: { name: "Cross-check", sub: "do they agree?", analogy: "does it fit?" },
-        analysts: { name: "Analysts", sub: "one profile each", analogy: "someone who looks" },
-        profile: { name: "Profile", sub: "ready for credit", analogy: "the finished puzzle" },
-      },
       tape: { served: "assembled on its own", rerouted: "reviewed today", lost: "waits until tomorrow" },
       resolvedOf: (n) => `${n} of 20 resolved today`,
+      puzzle: {
+        registry: "Registry",
+        document: "ID document",
+        fits: "Does it fit?",
+        board: "Today's puzzle",
+        analysts: (n) => (n === 0 ? "No analysts today" : n === 1 ? "1 analyst today" : `${n} analysts today`),
+        tomorrow: "Left for tomorrow",
+        halfPiece: "dashed half: the ID document is missing",
+        batch: (from, to) => `Profiles ${from} to ${to}`,
+        summary: (a, r, w) => `Puzzle of 20 profiles: ${a} fit on their own, ${r} reviewed by an analyst today, ${w} left for tomorrow.`,
+      },
     },
   },
   es: {
@@ -171,17 +174,21 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
     },
     scene: {
       title: "Qué perfiles se resolvieron hoy",
-      caption: "Mira cómo llegan los perfiles de cinco en cinco.",
-      statusLabels: { active: "ajustado por ti", success: "conflictos detectados", danger: "perfiles en espera" },
+      caption: "Cada perfil junta una pieza del registro y otra de la identificación. Si encajan, entra verde al rompecabezas. Si chocan, un analista lo revisa hoy o espera a mañana.",
       tapeLabel: "Veinte solicitantes, en el orden en que llegaron",
-      nodes: {
-        sources: { name: "Fuentes", sub: "registro e identificación", analogy: "las cajas de piezas" },
-        check: { name: "Cruce", sub: "¿coinciden?", analogy: "¿encaja?" },
-        analysts: { name: "Analistas", sub: "un perfil cada uno", analogy: "alguien que mira" },
-        profile: { name: "Perfil", sub: "listo para crédito", analogy: "el rompecabezas armado" },
-      },
       tape: { served: "armado solo", rerouted: "revisado hoy", lost: "espera a mañana" },
       resolvedOf: (n) => `${n} de 20 resueltos hoy`,
+      puzzle: {
+        registry: "Registro",
+        document: "Identificación",
+        fits: "¿Encaja?",
+        board: "El rompecabezas de hoy",
+        analysts: (n) => (n === 0 ? "Sin analistas hoy" : n === 1 ? "1 analista hoy" : `${n} analistas hoy`),
+        tomorrow: "Espera a mañana",
+        halfPiece: "media pieza punteada: falta la identificación",
+        batch: (from, to) => `Perfiles ${from} a ${to}`,
+        summary: (a, r, w) => `Rompecabezas de 20 perfiles: ${a} encajan solos, ${r} los revisa un analista hoy, ${w} esperan a mañana.`,
+      },
     },
   },
 };
