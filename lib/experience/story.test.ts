@@ -33,4 +33,9 @@ describe("Identidad 360 story copy", () => {
     expect(STORY.es.compare.sentence({ mismatched: 0, waiting: 0 }, { mismatched: 6, waiting: 0 })).toContain("nadie tuvo que esperar");
     expect(STORY.en.compare.sentence({ mismatched: 0, waiting: 0 }, { mismatched: 0, waiting: 0 })).toContain("same profiles");
   });
+
+  it("sizes the puzzle label from the run", () => {
+    expect(STORY.en.scene.puzzle.summary(3, 2, 1, 7)).toMatch(/^Puzzle of 7 profiles/);
+    expect(STORY.es.scene.puzzle.summary(3, 2, 1, 7)).toMatch(/^Rompecabezas de 7 perfiles/);
+  });
 });

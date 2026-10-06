@@ -14,6 +14,11 @@ export function revealedProfiles(frame: { visible: number; total: number; comple
   return Math.ceil((n * frame.visible) / frame.total);
 }
 
+/** First and last profile (1-based) that the current step revealed. */
+export function stepRange(frame: { visible: number; total: number; complete: boolean }, n: number, reducedMotion: boolean): [number, number] {
+  return [revealedProfiles({ ...frame, visible: frame.visible - 1 }, n, reducedMotion) + 1, revealedProfiles(frame, n, reducedMotion)];
+}
+
 export const COMPLETE_FRAME: PlaybackFrame<TraceEvent> = { visible: 0, total: 0, event: undefined, complete: true };
 
 export type PlacedProfile = { id: string; index: number; kind: BatchStatus; seat: number | null; tray: number | null; halfPiece: boolean };

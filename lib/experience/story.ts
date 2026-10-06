@@ -13,7 +13,7 @@ export interface IdentidadStory {
   fit: { heading: Heading; worthLabel: string; worth: string; notLabel: string; not: string };
   proves: { heading: Heading; text: string };
   engineers: { summary: string; points: string[]; repoLabel: string };
-  scene: { title: string; caption: string; tapeLabel: string; tape: { served: string; rerouted: string; lost: string }; resolvedOf: (n: number) => string; puzzle: { registry: string; document: string; fits: string; board: string; analysts: (n: number) => string; tomorrow: string; halfPiece: string; batch: (from: number, to: number) => string; summary: (assembled: number, reviewed: number, waiting: number) => string } };
+  scene: { title: string; caption: string; tapeLabel: (n: number) => string; tape: { served: string; rerouted: string; lost: string }; resolvedOf: (n: number) => string; puzzle: { registry: string; document: string; fits: string; board: string; analysts: (n: number) => string; tomorrow: string; halfPiece: string; batch: (from: number, to: number) => string; summary: (assembled: number, reviewed: number, waiting: number, total: number) => string } };
 }
 
 export const STORY: Record<"en" | "es", IdentidadStory> = {
@@ -88,7 +88,7 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
     scene: {
       title: "Which profiles got resolved today",
       caption: "Each profile joins a registry piece and an ID piece. If they fit, it goes green into the puzzle. If they clash, an analyst looks at it today or it waits until tomorrow.",
-      tapeLabel: "Twenty applicants, in the order they applied",
+      tapeLabel: (n) => `${n} applicants, in the order they applied`,
       tape: { served: "assembled on its own", rerouted: "reviewed today", lost: "waits until tomorrow" },
       resolvedOf: (n) => `${n} of 20 resolved today`,
       puzzle: {
@@ -100,7 +100,7 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
         tomorrow: "Left for tomorrow",
         halfPiece: "dashed half: the ID document is missing",
         batch: (from, to) => `Profiles ${from} to ${to}`,
-        summary: (a, r, w) => `Puzzle of 20 profiles: ${a} fit on their own, ${r} reviewed by an analyst today, ${w} left for tomorrow.`,
+        summary: (a, r, w, n) => `Puzzle of ${n} profiles: ${a} fit on their own, ${r} reviewed by an analyst today, ${w} left for tomorrow.`,
       },
     },
   },
@@ -175,7 +175,7 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
     scene: {
       title: "Qué perfiles se resolvieron hoy",
       caption: "Cada perfil junta una pieza del registro y otra de la identificación. Si encajan, entra verde al rompecabezas. Si chocan, un analista lo revisa hoy o espera a mañana.",
-      tapeLabel: "Veinte solicitantes, en el orden en que llegaron",
+      tapeLabel: (n) => `${n} solicitantes, en el orden en que llegaron`,
       tape: { served: "armado solo", rerouted: "revisado hoy", lost: "espera a mañana" },
       resolvedOf: (n) => `${n} de 20 resueltos hoy`,
       puzzle: {
@@ -187,7 +187,7 @@ export const STORY: Record<"en" | "es", IdentidadStory> = {
         tomorrow: "Espera a mañana",
         halfPiece: "media pieza punteada: falta la identificación",
         batch: (from, to) => `Perfiles ${from} a ${to}`,
-        summary: (a, r, w) => `Rompecabezas de 20 perfiles: ${a} encajan solos, ${r} los revisa un analista hoy, ${w} esperan a mañana.`,
+        summary: (a, r, w, n) => `Rompecabezas de ${n} perfiles: ${a} encajan solos, ${r} los revisa un analista hoy, ${w} esperan a mañana.`,
       },
     },
   },

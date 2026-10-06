@@ -7,7 +7,7 @@ import { OutcomeTape, useReducedMotion } from "@/design-system/demo/project-stor
 import { tapeCounts } from "@/design-system/demo/outcome-tape";
 import type { BatchStatus } from "./batch";
 import type { MissionResult } from "./mission";
-import { identityCells, LAYOUTS, placeProfiles, revealedProfiles, type PuzzleLayout } from "./scene-state";
+import { identityCells, LAYOUTS, placeProfiles, revealedProfiles, stepRange, type PuzzleLayout } from "./scene-state";
 import { STORY } from "./story";
 
 type LayoutKey = keyof typeof LAYOUTS;
@@ -38,7 +38,7 @@ function endOf(layout: PuzzleLayout, index: number, kind: BatchStatus, tray: num
   return kind === "waiting" && tray !== null ? layout.tray(tray) : { ...layout.slot(index), s: 1 };
 }
 
-function Piece({ layoutKey, index, kind, seat, tray, seats, halfPiece, animate, stagger }: { layoutKey: LayoutKey; index: number; kind: BatchStatus; seat: number | null; tray: number | null; seats: number; halfPiece: boolean; animate: boolean; stagger: () => number }) {
+function Piece({ id, layoutKey, index, kind, seat, tray, seats, halfPiece, animate, stagger, onLanded }: { id: string; layoutKey: LayoutKey; index: number; kind: BatchStatus; seat: number | null; tray: number | null; seats: number; halfPiece: boolean; animate: boolean; stagger: () => number; onLanded: (id: string, landed: boolean) => void }) {
   const group = useRef<SVGGElement>(null);
   const registry = useRef<SVGGElement>(null);
   const idDoc = useRef<SVGGElement>(null);
@@ -48,7 +48,8 @@ function Piece({ layoutKey, index, kind, seat, tray, seats, halfPiece, animate, 
 
   useEffect(() => {
     const g = group.current, L = registry.current, R = idDoc.current;
-    if (!animate || !g || !L || !R) return;
+    if (!animate || !g || !L || !R) { onLanded(id, true); return; }
+    onLanded(id, false);
     const { check, pieceA, pieceB } = layout;
     const t = timeline(kind);
     const box = kind === "reviewed" && seat !== null ? layout.seat(seat, seats) : { ...check, s: 1 };
@@ -71,6 +72,8 @@ function Piece({ layoutKey, index, kind, seat, tray, seats, halfPiece, animate, 
       ...Array.from(g.querySelectorAll<SVGElement>("[data-neutral]"), n => n.animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: o(t.verdict[0]) }, { opacity: 0, offset: o(t.verdict[1]) }, { opacity: 0, offset: 1 }], opts)),
       ...Array.from(g.querySelectorAll<SVGElement>("[data-glyph]"), n => n.animate([{ opacity: 0, offset: 0 }, { opacity: 0, offset: o(t.verdict[0]) }, { opacity: 1, offset: o(t.verdict[1]) }, { opacity: 1, offset: 1 }], opts)),
     ];
+    // A cancelled animation rejects `finished`; the piece then lands through the next effect run instead.
+    running[0].finished.then(() => onLanded(id, true), () => {});
     return () => running.forEach(a => a.cancel());
     // eslint-disable-next-line react-hooks/exhaustive-deps -- a piece animates once per mount; its position is derived from these primitives.
   }, [animate, layoutKey, index, kind, seat, tray, seats]);
@@ -104,7 +107,11 @@ function Label({ x, y, children, size, muted = false }: { x: number; y: number; 
   return <text x={x} y={y} textAnchor="middle" fontSize={size} fontWeight={muted ? 400 : 600} className={muted ? "fill-muted-foreground" : "fill-foreground"}>{children}</text>;
 }
 
-export function IdentidadStoryScene({ frame, result, seats, locale }: { frame: PlaybackFrame<TraceEvent>; result: MissionResult; seats: number; locale: "en" | "es" }) {
+/**
+ * `skip`: the visitor asked for the whole trace ("Show all"), so the pieces land at once when the frame is complete.
+ * `onSettled`: fires once every piece has landed, which is when the comparison below may appear.
+ */
+export function IdentidadStoryScene({ frame, result, seats, locale, skip = false, onSettled }: { frame: PlaybackFrame<TraceEvent>; result: MissionResult; seats: number; locale: "en" | "es"; skip?: boolean; onSettled?: () => void }) {
   const story = STORY[locale];
   const copy = story.scene;
   const puzzle = copy.puzzle;
@@ -113,6 +120,15 @@ export function IdentidadStoryScene({ frame, result, seats, locale }: { frame: P
   const layout = LAYOUTS[layoutKey];
   const [stagger] = useState(() => { let next = 0; return () => { const now = performance.now(); const start = Math.max(now, next); next = start + STAGGER_MS; return start - now; }; });
 
+  const animate = !reduced && !(skip && frame.complete);
+  const [landed, setLanded] = useState<ReadonlySet<string>>(() => new Set());
+  const [onLanded] = useState(() => (id: string, on: boolean) => setLanded(prev => {
+    if (prev.has(id) === on) return prev;
+    const next = new Set(prev);
+    if (on) next.add(id); else next.delete(id);
+    return next;
+  }));
+
   const revealed = revealedProfiles(frame, result.items.length, reduced);
   const cells = identityCells(result.items, revealed);
   const counts = tapeCounts(cells);
@@ -120,12 +136,16 @@ export function IdentidadStoryScene({ frame, result, seats, locale }: { frame: P
   const waiting = placed.filter(p => p.kind === "waiting").length;
   const reviewed = placed.filter(p => p.kind === "reviewed").length;
   const showBatch = !reduced && !frame.complete && frame.total > 0;
-  const from = (frame.visible - 1) * 5 + 1;
+  const [from, to] = stepRange(frame, result.items.length, reduced);
+  const settled = revealed === result.items.length && placed.every(p => landed.has(p.id));
+  const onSettledRef = useRef(onSettled);
+  useEffect(() => { onSettledRef.current = onSettled; });
+  useEffect(() => { if (settled) onSettledRef.current?.(); }, [settled]);
   const { boxA, boxB, check, seats: seatBox, trayBox, font } = layout;
   const label = (b: { x: number; y: number; w: number }) => ({ x: b.x + b.w / 2, y: b.y + font + 8 });
 
   return <StoryStage locale={locale} title={copy.title} caption={copy.caption} step={frame.visible} total={frame.total}>
-    <svg key={layoutKey} data-puzzle={layoutKey} viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label={puzzle.summary(revealed - reviewed - waiting, reviewed, waiting)} className="block h-auto w-full font-sans">
+    <svg key={layoutKey} data-puzzle={layoutKey} viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label={puzzle.summary(revealed - reviewed - waiting, reviewed, waiting, result.items.length)} className="block h-auto w-full font-sans">
       <rect x={boxA.x} y={boxA.y} width={boxA.w} height={boxA.h} rx={8} strokeWidth={1} className="fill-[#c9b48a]/15 stroke-[#c9b48a]/60" />
       <Label {...label(boxA)} size={font}>{puzzle.registry}</Label>
       <rect x={boxB.x} y={boxB.y} width={boxB.w} height={boxB.h} rx={8} strokeWidth={1} className="fill-[#a89a7c]/15 stroke-[#a89a7c]/60" />
@@ -143,13 +163,13 @@ export function IdentidadStoryScene({ frame, result, seats, locale }: { frame: P
       <rect x={trayBox.x} y={trayBox.y} width={trayBox.w} height={trayBox.h} rx={10} strokeWidth={1} className="fill-danger/10 stroke-danger/40" />
       <Label {...label(trayBox)} size={font}>{puzzle.tomorrow}</Label>
 
-      {placed.map(p => <Piece key={p.id} layoutKey={layoutKey} index={p.index} kind={p.kind} seat={p.seat} tray={p.tray} seats={seats} halfPiece={p.halfPiece} animate={!reduced} stagger={stagger} />)}
-      {showBatch ? <Label {...layout.phase} size={font - 2} muted>{puzzle.batch(from, Math.min(from + 4, result.items.length))}</Label> : null}
+      {placed.map(p => <Piece key={p.id} id={p.id} layoutKey={layoutKey} index={p.index} kind={p.kind} seat={p.seat} tray={p.tray} seats={seats} halfPiece={p.halfPiece} animate={animate} stagger={stagger} onLanded={onLanded} />)}
+      {showBatch ? <Label {...layout.phase} size={font - 2} muted>{puzzle.batch(from, to)}</Label> : null}
     </svg>
     <div className="mt-6">
-      <OutcomeTape cells={cells} labels={copy.tape} ariaLabel={copy.tapeLabel} columns={10} />
+      <OutcomeTape cells={cells} labels={copy.tape} ariaLabel={copy.tapeLabel(result.items.length)} columns={10} />
       <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"><span aria-hidden="true" className="inline-block size-2.5 rounded-sm border border-dashed border-muted-foreground" />{puzzle.halfPiece}</p>
-      <p className="mt-4 font-mono text-2xl font-semibold tracking-tight">{copy.resolvedOf(counts.served + counts.rerouted)}</p>
+      <p className="mt-4 font-mono text-2xl font-semibold tracking-tight" data-scene-result data-settled={settled}>{copy.resolvedOf(counts.served + counts.rerouted)}</p>
       <p className="mt-1 text-sm text-muted-foreground">{story.compare.waiting(waiting)}</p>
     </div>
   </StoryStage>;

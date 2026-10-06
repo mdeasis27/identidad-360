@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { tapeCounts } from "@/design-system/demo/outcome-tape";
 import { assembleBatch } from "./batch";
-import { identityCells, LAYOUTS, placeProfiles, revealedProfiles } from "./scene-state";
+import { identityCells, LAYOUTS, placeProfiles, revealedProfiles, stepRange } from "./scene-state";
 
 it("final tape counts match the batch", () => {
   expect(tapeCounts(identityCells(assembleBatch(2).items, 20))).toEqual({ served: 14, rerouted: 2, lost: 4, pending: 0 });
@@ -11,6 +11,12 @@ it("reveals five profiles per step, all when complete or under reduced motion", 
   expect(revealedProfiles({ visible: 1, total: 4, complete: false }, 20, false)).toBe(5);
   expect(revealedProfiles({ visible: 4, total: 4, complete: true }, 20, false)).toBe(20);
   expect(revealedProfiles({ visible: 1, total: 4, complete: false }, 20, true)).toBe(20);
+});
+
+it("names the profiles the current step revealed, from the real batch size", () => {
+  expect(stepRange({ visible: 1, total: 4, complete: false }, 20, false)).toEqual([1, 5]);
+  expect(stepRange({ visible: 3, total: 4, complete: false }, 20, false)).toEqual([11, 15]);
+  expect(stepRange({ visible: 2, total: 3, complete: false }, 7, false)).toEqual([4, 5]);
 });
 
 describe("puzzle placement", () => {
