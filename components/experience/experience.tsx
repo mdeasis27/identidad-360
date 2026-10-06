@@ -1,10 +1,89 @@
 "use client";
-import { useEffect, useState } from "react";
-import { OutcomeBlock, ScenarioPicker, StoryBrief, StoryStage } from "@/design-system/demo/decision-lab";
+import { useState } from "react";
 import { TracePlayer } from "@/design-system/demo/trace-player";
+import { MissionPrompt, MissionComparison } from "@/design-system/demo/mission-lab";
 import { useDemoRun } from "@/design-system/demo/use-demo-run";
-import { runExperience, type ExperienceInput, type ExperienceResult } from "@/lib/experience/adapter";
-import { identityScenarios } from "@/lib/experience/story";
-import { Visualization } from "./visualization";
-function finalOutcome(result: ExperienceResult, lang: "en" | "es") { const es = lang === "es"; return result.decision === "review" ? { title: es ? "Revisión analítica" : "Analyst review", explanation: es ? "La contradicción entre fuentes separa el perfil y lo envía a una persona analista." : "The source conflict separates the profile and sends it to an analyst.", tone: "warning" as const } : { title: es ? "Perfil ensamblado" : "Profile assembled", explanation: es ? "Registro y documento se integraron en el perfil local con la cobertura mostrada." : "Registry and document were assembled into the local profile at the shown coverage.", tone: "success" as const }; }
-export function Experience({ lang }: { lang: "en" | "es" }) { const es = lang === "es"; const [input, setInput] = useState<ExperienceInput>(identityScenarios.assembled); const [selected, setSelected] = useState<"assembled" | "conflict" | "custom">("assembled"); const demo = useDemoRun(runExperience); useEffect(() => { demo.cancel(); }, [input.registry, input.document, input.conflict]); const change = (next: ExperienceInput) => { setInput(next); setSelected("custom"); demo.reset(); }; const choose = (id: "assembled" | "conflict") => { setInput(identityScenarios[id]); setSelected(id); demo.reset(); }; const reset = () => { setInput(identityScenarios.assembled); setSelected("assembled"); demo.reset(); }; const story = es ? { eyebrow: "Laboratorio de identidad", mission: "Ensambla evidencia sin ocultar una contradicción.", context: "Registro y documento forman un perfil local; una colisión exige revisión.", role: "Analista de identidad", decision: "Ensamblar o escalar", stakes: "Cobertura y atención humana." } : { eyebrow: "Identity lab", mission: "Assemble evidence without hiding a contradiction.", context: "Registry and document form a local profile; a conflict needs review.", role: "Identity analyst", decision: "Assemble or escalate", stakes: "Coverage and human attention." }; return <main className="mx-auto max-w-6xl px-5 py-10"><div className="flex justify-between"><a href={`/${lang}`}>← {es ? "Portafolio" : "Portfolio"}</a><a href={`/${es ? "en" : "es"}/app`}>{es ? "EN" : "ES"}</a></div><h1 className="mt-8 text-4xl font-bold tracking-tight">{es ? "Mapa de evidencia de identidad" : "Identity evidence map"}</h1><p className="mt-2 text-sm text-muted-foreground">{es ? "Cambiar el idioma reinicia el escenario local." : "Changing language resets the local scenario."}</p><StoryBrief story={story} locale={lang} /><div className="grid gap-6 lg:grid-cols-[320px_1fr]"><section aria-label={es ? "Controles del escenario" : "Scenario controls"}><ScenarioPicker locale={lang} selected={selected} onSelect={(id) => choose(id as "assembled" | "conflict")} options={[{ id: "assembled", label: es ? "Perfil consistente" : "Consistent profile", description: es ? "Registro y documento coinciden." : "Registry and document agree." }, { id: "conflict", label: es ? "Contradicción" : "Contradiction", description: es ? "Una señal separa el caso para revisión." : "A signal separates the case for review." }]} />{(["registry", "document", "conflict"] as const).map((key) => <label key={key} className="mt-3 flex justify-between text-sm"><span>{es ? ({ registry: "Registro", document: "Documento", conflict: "Contradicción" }[key]) : ({ registry: "Registry", document: "Document", conflict: "Conflict" }[key])}</span><input type="checkbox" checked={input[key]} onChange={(event) => change({ ...input, [key]: event.target.checked })} /></label>)}{demo.error && <p className="mt-4 rounded border border-danger bg-danger/10 p-3 text-sm text-danger" role="alert">{es ? "Activa al menos una fuente local de evidencia." : demo.error}</p>}<button className="mt-5 w-full rounded bg-accent p-2 font-medium text-white disabled:opacity-60" disabled={demo.running} onClick={() => demo.execute(input)}>{demo.running ? (es ? "Ensamblando…" : "Assembling…") : (es ? "Construir perfil" : "Assemble profile")}</button><div className="mt-3 flex gap-2"><button className="rounded border border-border px-3 py-2 text-sm" type="button" onClick={demo.cancel}>{es ? "Cancelar" : "Cancel"}</button><button className="rounded border border-border px-3 py-2 text-sm" type="button" onClick={reset}>{es ? "Restaurar" : "Reset"}</button></div></section><div className="space-y-5"><TracePlayer trace={demo.trace} locale={lang} executionMs={demo.run?.executionMs} translate={(key) => ({ sources: es ? "Fuentes reunidas" : "Sources gathered", profile: es ? "Perfil evaluado" : "Profile evaluated" }[key] ?? key)} renderStage={(frame) => { const result = demo.run?.result; return <StoryStage locale={lang} title={es ? "Mesa de evidencia" : "Evidence board"} caption={es ? "Las piezas se ensamblan antes de revelar si el caso llega a revisión." : "Pieces assemble before revealing whether the case reaches review."} step={frame.visible} total={frame.total}><Visualization input={input} visible={frame.visible} result={result} lang={lang} />{frame.complete && result && <div className="mt-6"><OutcomeBlock {...finalOutcome(result, lang)} /></div>}</StoryStage>; }} /></div></div></main>; }
+import { StoryHero, StorySection, AnalogyBlock, WhyIBuiltIt, FitGuide, ProvesBlock, EngineerNotes } from "@/design-system/demo/project-story";
+import { LanguageSwitch } from "@/design-system/components/language-switch";
+import { traceCopy } from "@/lib/experience/trace-copy";
+import { runMission } from "@/lib/experience/mission";
+import { IdentidadStoryScene } from "@/lib/experience/story-scene";
+import { COMPLETE_FRAME } from "@/lib/experience/scene-state";
+import { STORY } from "@/lib/experience/story";
+
+const REPO = "https://github.com/mdeasis27/identidad-360";
+const DEFAULT_SEATS = 2;
+
+export function Experience({ lang: locale }: { lang: "en" | "es" }) {
+  const t = STORY[locale];
+  const [seats, setSeats] = useState(DEFAULT_SEATS);
+  const [prediction, setPrediction] = useState<string | null>(null);
+  const demo = useDemoRun(runMission);
+  const run = demo.run;
+  const result = run?.result;
+  // Section 03 waits for the tape to finish; keyed to the trace so every new run resets it.
+  const [playedTrace, setPlayedTrace] = useState<typeof demo.trace | null>(null);
+  const played = demo.trace.length === 0 || playedTrace === demo.trace;
+  const clear = () => { setPrediction(null); demo.reset(); };
+  const reset = () => { setSeats(DEFAULT_SEATS); clear(); };
+  const scene = (frame: typeof COMPLETE_FRAME) => result ? <IdentidadStoryScene frame={frame} result={result} locale={locale} /> : null;
+
+  return <main className="mx-auto max-w-5xl px-5 py-8 text-foreground sm:py-12">
+    <div className="mb-6 flex items-center justify-between gap-4">
+      <a className="font-mono text-xs text-muted-foreground underline-offset-4 hover:underline" href={`/${locale}`}>← {t.name}</a>
+      <LanguageSwitch locale={locale} />
+    </div>
+    <StoryHero name={t.name} oneLiner={t.oneLiner} chips={t.chips} />
+
+    <StorySection index={1} heading={t.analogy.heading}>
+      <AnalogyBlock paragraphs={t.analogy.paragraphs} dictionaryLabel={t.analogy.dictionaryLabel} dictionary={t.analogy.dictionary} />
+    </StorySection>
+
+    <WhyIBuiltIt title={t.why.title} text={t.why.text} />
+
+    <StorySection index={2} heading={t.tryIt.heading} lead={t.tryIt.lead}>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+        <section className="min-w-0 rounded-xl border border-border bg-surface p-5">
+          <MissionPrompt locale={locale} question={t.tryIt.question(seats)} prediction={prediction} onPredict={setPrediction} locked={Boolean(run) || demo.running} options={[{ id: "yes", label: t.tryIt.yes }, { id: "no", label: t.tryIt.no }]} />
+          <label className="mt-5 block text-sm">
+            <span className="flex justify-between"><span>{t.tryIt.seatsLabel}</span><span className="font-mono">{seats}</span></span>
+            <input aria-label={t.tryIt.seatsLabel} className="mt-2 w-full" type="range" min="0" max="8" step="1" value={seats} onChange={e => { setSeats(Number(e.target.value)); clear(); }} />
+            <span className="mt-1 block text-xs text-muted-foreground">{t.tryIt.seatsHint}</span>
+          </label>
+          <p className="mt-4 text-xs leading-5 text-muted-foreground">{t.tryIt.note}</p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <button type="button" data-run-experiment disabled={demo.running} className="min-w-0 flex-1 rounded-lg bg-accent px-4 py-3 text-sm font-medium text-white disabled:opacity-60" onClick={() => demo.execute({ seats })}>{t.tryIt.simulate}</button>
+            <button type="button" className="rounded-lg border border-border px-3 py-3 text-sm" onClick={demo.cancel}>{t.tryIt.cancel}</button>
+            <button type="button" className="rounded-lg border border-border px-3 py-3 text-sm" onClick={reset}>{t.tryIt.reset}</button>
+          </div>
+          {demo.error ? <p role="alert" className="mt-3 text-sm text-danger">{t.tryIt.error}</p> : null}
+        </section>
+        <section className="min-w-0">
+          {run && result
+            ? (demo.trace.length === 0 ? scene(COMPLETE_FRAME) : <TracePlayer collapsible autoPlay headingLevel="h3" onComplete={() => setPlayedTrace(demo.trace)} translate={key => traceCopy(locale, key)} trace={demo.trace} locale={locale} executionMs={run.executionMs} renderStage={scene} />)
+            : <p className="rounded-xl border border-dashed border-border p-8 text-sm text-muted-foreground">{t.tryIt.idle}</p>}
+        </section>
+      </div>
+    </StorySection>
+
+    <StorySection index={3} heading={t.compare.heading} lead={t.compare.lead}>
+      {result && played ? <MissionComparison locale={locale} prediction={prediction} actual={result.resolved >= 17 ? "yes" : "no"} actualLabel={t.scene.resolvedOf(result.resolved)} explanation={t.compare.sentence(result.comparison.withCheck, result.comparison.withoutCheck)} sides={[
+        { label: t.compare.withCheck, value: `${result.comparison.withCheck.mismatched}`, detail: `${t.compare.mismatched} · ${t.compare.waiting(result.comparison.withCheck.waiting)}`, positive: result.comparison.withCheck.mismatched < result.comparison.withoutCheck.mismatched },
+        { label: t.compare.withoutCheck, value: `${result.comparison.withoutCheck.mismatched}`, detail: `${t.compare.mismatched} · ${t.compare.waiting(result.comparison.withoutCheck.waiting)}` },
+      ]} /> : null}
+    </StorySection>
+
+    <StorySection index={4} heading={t.fit.heading}>
+      <FitGuide worthLabel={t.fit.worthLabel} worth={t.fit.worth} notLabel={t.fit.notLabel} not={t.fit.not} />
+    </StorySection>
+
+    <StorySection index={5} heading={t.proves.heading}>
+      <ProvesBlock text={t.proves.text} />
+    </StorySection>
+
+    <EngineerNotes summary={t.engineers.summary}>
+      <ul className="list-disc space-y-2 pl-5">{t.engineers.points.map(p => <li key={p}>{p}</li>)}</ul>
+      <a className="mt-4 inline-block text-accent underline underline-offset-4" href={REPO}>{t.engineers.repoLabel} →</a>
+    </EngineerNotes>
+  </main>;
+}
