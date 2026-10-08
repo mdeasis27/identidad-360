@@ -7,7 +7,7 @@ import { OutcomeTape, useReducedMotion } from "@/design-system/demo/project-stor
 import { tapeCounts } from "@/design-system/demo/outcome-tape";
 import type { BatchStatus } from "./batch";
 import type { MissionResult } from "./mission";
-import { identityCells, LAYOUTS, placeProfiles, revealedProfiles, stepRange, type PuzzleLayout } from "./scene-state";
+import { identityCells, LAYOUTS, placeProfiles, revealedProfiles, stepRange, isReplay, type PuzzleLayout } from "./scene-state";
 import { STORY } from "./story";
 
 type LayoutKey = keyof typeof LAYOUTS;
@@ -122,6 +122,13 @@ export function IdentidadStoryScene({ frame, result, seats, locale, skip = false
 
   const animate = !reduced && !(skip && frame.complete);
   const [landed, setLanded] = useState<ReadonlySet<string>>(() => new Set());
+  // Playback returning to step 1 (Play after the tape finished) remounts the pieces so their animation runs again.
+  const [epoch, setEpoch] = useState(0);
+  const [lastVisible, setLastVisible] = useState(frame.visible);
+  if (frame.visible !== lastVisible) {
+    setLastVisible(frame.visible);
+    if (isReplay(lastVisible, frame.visible)) { setEpoch(e => e + 1); setLanded(new Set()); }
+  }
   const [onLanded] = useState(() => (id: string, on: boolean) => setLanded(prev => {
     if (prev.has(id) === on) return prev;
     const next = new Set(prev);
@@ -163,7 +170,7 @@ export function IdentidadStoryScene({ frame, result, seats, locale, skip = false
       <rect x={trayBox.x} y={trayBox.y} width={trayBox.w} height={trayBox.h} rx={10} strokeWidth={1} className="fill-danger/10 stroke-danger/40" />
       <Label {...label(trayBox)} size={font}>{puzzle.tomorrow}</Label>
 
-      {placed.map(p => <Piece key={p.id} id={p.id} layoutKey={layoutKey} index={p.index} kind={p.kind} seat={p.seat} tray={p.tray} seats={seats} halfPiece={p.halfPiece} animate={animate} stagger={stagger} onLanded={onLanded} />)}
+      {placed.map(p => <Piece key={`${epoch}-${p.id}`} id={p.id} layoutKey={layoutKey} index={p.index} kind={p.kind} seat={p.seat} tray={p.tray} seats={seats} halfPiece={p.halfPiece} animate={animate} stagger={stagger} onLanded={onLanded} />)}
       {showBatch ? <Label {...layout.phase} size={font - 2} muted>{puzzle.batch(from, to)}</Label> : null}
     </svg>
     <div className="mt-6">

@@ -61,3 +61,6 @@ export const LAYOUTS: Record<"wide" | "tall", PuzzleLayout> = {
     tray: k => ({ x: 220 + (k % 3) * 48, y: 582 + Math.floor(k / 3) * 38, s: 0.6 }),
   },
 };
+
+/** Playback went back to the first step from a later one (Play after the tape finished): the pieces must animate again. */
+export const isReplay = (prevVisible: number, visible: number) => visible === 1 && prevVisible > 1;
