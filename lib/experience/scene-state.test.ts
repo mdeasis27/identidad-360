@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { tapeCounts } from "@/design-system/demo/outcome-tape";
 import { assembleBatch } from "./batch";
-import { identityCells, LAYOUTS, placeProfiles, revealedProfiles, stepRange } from "./scene-state";
+import { identityCells, isReplay, LAYOUTS, placeProfiles, revealedProfiles, stepRange } from "./scene-state";
 
 it("final tape counts match the batch", () => {
   expect(tapeCounts(identityCells(assembleBatch(2).items, 20))).toEqual({ served: 14, rerouted: 2, lost: 4, pending: 0 });
@@ -50,4 +50,11 @@ describe("puzzle placement", () => {
       }
     }
   });
+});
+
+it("detects a replay only when playback returns to step 1 from a later step", () => {
+  expect(isReplay(4, 1)).toBe(true);
+  expect(isReplay(1, 1)).toBe(false);
+  expect(isReplay(1, 2)).toBe(false);
+  expect(isReplay(4, 3)).toBe(false);
 });
