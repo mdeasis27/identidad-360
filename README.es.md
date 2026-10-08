@@ -4,7 +4,7 @@
 [![CI](https://github.com/mdeasis27/identidad-360/actions/workflows/ci.yml/badge.svg)](https://github.com/mdeasis27/identidad-360/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- /community-badges -->
 
-[English](README.md) · [Probar demo](https://identidad-360-manueldeasis27-2515s-projects.vercel.app/es/app) · [Caso de estudio](https://manueldeasis.com/es/projects/identidad-360) · [Código](https://github.com/mdeasis27/identidad-360)
+[English](README.md) · [Probar demo](https://identidad-360-manueldeasis27-2515s-projects.vercel.app/es/app) · [Caso de estudio](https://portafolio-mdea.vercel.app/es/projects/identidad-360) · [Código](https://github.com/mdeasis27/identidad-360)
 
 ![Interfaz interactiva local real](docs/images/cover.png)
 
