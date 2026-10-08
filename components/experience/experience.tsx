@@ -14,6 +14,8 @@ import { STORY } from "@/lib/experience/story";
 const REPO = "https://github.com/mdeasis27/identidad-360";
 const DEFAULT_SEATS = 2;
 
+const HUB = "https://portafolio-mdea.vercel.app";
+
 export function Experience({ lang: locale }: { lang: "en" | "es" }) {
   const t = STORY[locale];
   const [seats, setSeats] = useState(DEFAULT_SEATS);
@@ -39,7 +41,7 @@ export function Experience({ lang: locale }: { lang: "en" | "es" }) {
 
   return <main className="mx-auto max-w-5xl px-5 py-8 text-foreground sm:py-12">
     <div className="mb-6 flex items-center justify-between gap-4">
-      <a className="font-mono text-xs text-muted-foreground underline-offset-4 hover:underline" href={`/${locale}`}>← {t.name}</a>
+      <a className="font-mono text-xs text-muted-foreground underline-offset-4 hover:underline" href={`${HUB}/${locale}/projects`}>← {locale === "es" ? "Todos los proyectos" : "All projects"}</a>
       <LanguageSwitch locale={locale} />
     </div>
     <StoryHero name={t.name} oneLiner={t.oneLiner} chips={t.chips} />
