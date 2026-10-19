@@ -64,7 +64,6 @@ Open `http://localhost:3000/en/app`. Recorded validation covers tests, lint, Typ
 - `app/[lang]/`: localized browser experience.
 - `lib/experience/`: typed local adapter, validation and run traces.
 - `design-system/`: shared visual tokens, locale controls and execution/replay presentation.
-- `app/api/`: optional server integrations; the primary demo does not require them.
 
 Technology: Next.js 16, TypeScript, AI SDK, REST APIs, LLM API, Zod, Tailwind CSS v4.
 

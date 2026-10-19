@@ -64,7 +64,6 @@ Abre `http://localhost:3000/en/app`. La validación registrada cubre pruebas, li
 - `app/[lang]/`: experiencia web por idioma.
 - `lib/experience/`: adaptador local tipado, validación y trazas.
 - `design-system/`: tokens visuales, controles de idioma y presentación de ejecución y reproducción.
-- `app/api/`: integraciones opcionales de servidor; la demo principal no las requiere.
 
 Tecnología: Next.js 16, TypeScript, AI SDK, REST APIs, LLM API, Zod, Tailwind CSS v4.
 
